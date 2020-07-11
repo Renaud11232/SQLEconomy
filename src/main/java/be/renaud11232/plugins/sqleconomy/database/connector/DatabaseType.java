@@ -4,6 +4,7 @@ import be.renaud11232.plugins.sqleconomy.database.exceptions.DatabaseException;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public enum DatabaseType implements DatabaseConnector {
 
@@ -18,7 +19,13 @@ public enum DatabaseType implements DatabaseConnector {
 
     @Override
     public Connection getConnection(FileConfiguration configuration) throws DatabaseException {
-        return connector.getConnection(configuration);
+        Connection connection = connector.getConnection(configuration);
+        try {
+            connection.setAutoCommit(false);
+        } catch (SQLException e) {
+            throw new DatabaseException("Unable to disable auto-commit", e);
+        }
+        return connection;
     }
 
 }
